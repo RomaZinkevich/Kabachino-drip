@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title> {{title}} </title>
+
+    <style>
+      p {
+        margin-left : 50%; 
+      }
+ </style>
+ <style>
+      q {
+        margin-right : 30%; 
+      }
+ </style>
+  </head>
+  <body>
+  	<header>
+  		<nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+    <a class="navbar-brand"> <h1> <p> PANOS </p> </h1> </a>
+
+
+
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="layer1">
+    <q>
+       <span> {{ form.search.label }}</span>
+        <span>{{ form.search(class="form-control") }}</span>
+        <span>{{ form.submit(type="submit", class="btn btn-primary") }}</span>
+    </q>
+</div>
+</form>
+
+
+
+
+  </div>
+</nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+	</header>
+
+		{% block content %}{% endblock %}
+
+    </br>
+    {% block prof %}{% endblock %}
+
+  </body>
+</html>
