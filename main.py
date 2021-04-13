@@ -15,13 +15,28 @@ class SearchForm(FlaskForm):
     submit = SubmitField('Искать')
 
 
-@app.route("/", methods=['POST', 'GET'])
+@app.route("/")
 def main_page():
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
     return render_template('main.html', title='PANOS', form=form)
+
+
+@app.route("/shoes")
+def shoes():
+    return 'Кроссовки типо'
+
+
+@app.route("/tshirt")
+def tshirt():
+    return 'Футболки типо'
+
+
+@app.route("/short")
+def short():
+    return 'Штаны типо'
 
 
 if __name__ == '__main__':
