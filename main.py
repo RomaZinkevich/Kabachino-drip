@@ -7,7 +7,7 @@ import json
 import random
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'adgfadfd'
+app.config['SECRET_KEY'] = 'roma))))'
 
 
 class SearchForm(FlaskForm):
