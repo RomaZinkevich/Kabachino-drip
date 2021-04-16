@@ -24,19 +24,28 @@ def main_page():
     return render_template('main.html', title='PANOS', form=form)
 
 
-@app.route("/shoes")
-def shoes():
-    return 'Кроссовки типо'
+@app.route("/<sex>")
+def gender(sex):
+    form = SearchForm()
+    if form.validate_on_submit():
+        print(form.search)
+        return 'АХАХАХАХАХА'
+    if sex == 'woman':
+        return render_template('woman_main.html', title='PANOS', form=form)
+    elif sex == 'man':
+        return render_template('man_main.html', title='PANOS', form=form)
+    else:
+        return "<h1> Ошибка: страница не найдена </h1>"
 
 
-@app.route("/tshirt")
-def tshirt():
-    return 'Футболки типо'
-
-
-@app.route("/short")
-def short():
-    return 'Штаны типо'
+@app.route("/<sex>/<clothes>")
+def clothes(sex, clothes):
+    form = SearchForm()
+    if form.validate_on_submit():
+        print(form.search)
+        return 'АХАХАХАХАХА'
+    if sex == 'woman' and clothes == 'shoes':
+        return render_template('shoes_woman.html', title='PANOS', form=form)
 
 
 if __name__ == '__main__':
