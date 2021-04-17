@@ -39,13 +39,12 @@ def gender(sex):
 
 
 @app.route("/<sex>/<clothes>")
-def clothes(sex, clothes):
+def page(sex, clothes):
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    if sex == 'woman' and clothes == 'shoes':
-        return render_template('shoes_woman.html', title='PANOS', form=form)
+    return render_template('woman_main.html', title='PANOS', form=form)
 
 
 if __name__ == '__main__':
