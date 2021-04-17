@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired
 import sys
 import json
 import random
+import sqlite3
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'roma))))'
@@ -38,13 +39,20 @@ def gender(sex):
         return "<h1> Ошибка: страница не найдена </h1>"
 
 
-@app.route("/<sex>/<clothes>")
-def page(sex, clothes):
+@app.route("/woman<clothes>")
+def page(clothes):
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    return render_template('woman_main.html', title='PANOS', form=form)
+    if clothes == 'shoes':
+        con = sqlite3.connect("data.db")
+        cur = con.cursor()
+        data = cur.execute(
+            """SELECT * from shoes WHERE sex=='F' """).fetchall()
+        return render_template('shoes_woman.html', title='PANOS', form=form, data=data)
+    else:
+        return 'пчелты'
 
 
 if __name__ == '__main__':
