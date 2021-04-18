@@ -6,22 +6,20 @@
 
 
 <table class="table caption-top">
-    <thead>
-      <tr>
-{% for i in data %}
-      <th scope="col">{{i[0]}}</th>
-{% endfor %}
-</tr>
-</thead>
+
 <tbody>
     <tr>
-{% set с = "ААААААААААА" %}
 {% for i in data %}
-      
+      {% if loop.index % 4==0 %} </tr>
+
+    <tr>
+    {% else %} 
+    {% endif %}
       <td><a href="http://127.0.0.1:8080/man">
 
-     <img src={{i[2]}} width="100%"></a>{{c}}
-     <p style="margin-left:42%"> {{i[1]}} руб.</td></p>
+     <img src={{i[2]}} width="100%"></a>
+     <h2>{{i[0]}}</h2>
+     <h4><p style="margin-left:30%"> {{i[1]}} руб.</p></h4></td>
     
   
 
