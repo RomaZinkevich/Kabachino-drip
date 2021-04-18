@@ -31,10 +31,8 @@ def gender(sex):
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    if sex == 'woman':
-        return render_template('woman_main.html', title='PANOS', form=form)
-    elif sex == 'man':
-        return render_template('man_main.html', title='PANOS', form=form)
+    if sex == 'woman' or sex == 'man':
+        return render_template('choice.html', title='PANOS', form=form, sex=sex)
     else:
         return "<h1> Ошибка: страница не найдена </h1>"
 
