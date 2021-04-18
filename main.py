@@ -40,19 +40,31 @@ def gender(sex):
 
 
 @app.route("/woman<clothes>")
-def page(clothes):
+def woman_clothes(clothes):
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    if clothes == 'shoes':
-        con = sqlite3.connect("data.db")
-        cur = con.cursor()
-        data = cur.execute(
-            """SELECT * from shoes WHERE sex=='F' """).fetchall()
-        return render_template('shoes_woman.html', title='PANOS', form=form, data=data)
-    else:
-        return 'пчелты'
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    data = cur.execute(
+        f"""SELECT * from {clothes} WHERE sex like 'F%' """, ).fetchall()
+    con.close()
+    return render_template('clothes.html', title='PANOS', form=form, data=data)
+
+
+@app.route("/man<clothes>")
+def man_clothes(clothes):
+    form = SearchForm()
+    if form.validate_on_submit():
+        print(form.search)
+        return 'АХАХАХАХАХА'
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    data = cur.execute(
+        f"""SELECT * from {clothes} WHERE sex like '%M' """, ).fetchall()
+    con.close()
+    return render_template('clothes.html', title='PANOS', form=form, data=data)
 
 
 if __name__ == '__main__':
