@@ -6,6 +6,8 @@ import sys
 import json
 import random
 import sqlite3
+from data import db_session
+from data import clothes_db
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'roma))))'
@@ -43,11 +45,13 @@ def woman_clothes(clothes):
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    con = sqlite3.connect("data.db")
-    cur = con.cursor()
-    data = cur.execute(
-        f"""SELECT * from {clothes} WHERE sex like 'F%' """, ).fetchall()
-    con.close()
+    db_session.global_init("data.db")
+    db_sess = db_session.create_session()
+    data = []
+    like = 'F%'
+    for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
+        datum = (i.name, i.price, i.pic)
+        data.append(datum)
     return render_template('clothes.html', title='PANOS', form=form, data=data)
 
 
@@ -57,11 +61,20 @@ def man_clothes(clothes):
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
-    con = sqlite3.connect("data.db")
-    cur = con.cursor()
-    data = cur.execute(
-        f"""SELECT * from {clothes} WHERE sex like '%M' """, ).fetchall()
-    con.close()
+    db_session.global_init("data.db")
+    db_sess = db_session.create_session()
+    datum = ''
+    data = []
+    like = '%M'
+    for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
+        datum = (i.name, i.price, i.pic)
+        data.append(datum)
+    # con = sqlite3.connect("data.db")
+    # cur = con.cursor()
+    # data = cur.execute(
+    #     f"""SELECT * from clothes WHERE sex like '%M' """, ).fetchall()
+    # con.close()
+    # print(data)
     return render_template('clothes.html', title='PANOS', form=form, data=data)
 
 
