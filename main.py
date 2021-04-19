@@ -42,13 +42,14 @@ def gender(sex):
 @app.route("/woman<clothes>")
 def woman_clothes(clothes):
     form = SearchForm()
+    datum = ''
+    data = []
+    like = 'F%'
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
-    data = []
-    like = 'F%'
     for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
         datum = (i.name, i.price, i.pic)
         data.append(datum)
@@ -58,23 +59,17 @@ def woman_clothes(clothes):
 @app.route("/man<clothes>")
 def man_clothes(clothes):
     form = SearchForm()
+    datum = ''
+    data = []
+    like = '%M'
     if form.validate_on_submit():
         print(form.search)
         return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
-    datum = ''
-    data = []
-    like = '%M'
     for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
         datum = (i.name, i.price, i.pic)
         data.append(datum)
-    # con = sqlite3.connect("data.db")
-    # cur = con.cursor()
-    # data = cur.execute(
-    #     f"""SELECT * from clothes WHERE sex like '%M' """, ).fetchall()
-    # con.close()
-    # print(data)
     return render_template('clothes.html', title='PANOS', form=form, data=data)
 
 
