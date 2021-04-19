@@ -10,16 +10,16 @@ from data import db_session
 from data import clothes_db
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'roma))))'
+app.config['SECRET_KEY'] = 'hgowoeqeghsdlgh'
 
 
-class SearchForm(FlaskForm):
+class SearchForm(FlaskForm):  # Класс для поисковой строки
     search = StringField('', validators=[DataRequired()])
     submit = SubmitField('Искать')
 
 
 @app.route("/")
-def main_page():
+def main_page():  # Главная страница сайта
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
@@ -27,8 +27,8 @@ def main_page():
     return render_template('main.html', title='PANOS', form=form)
 
 
-@app.route("/<sex>")
-def gender(sex):
+@app.route("/<string:sex>")
+def gender(sex):  # Страница отвечающая за выбор пола
     form = SearchForm()
     if form.validate_on_submit():
         print(form.search)
@@ -40,7 +40,7 @@ def gender(sex):
 
 
 @app.route("/woman<clothes>")
-def woman_clothes(clothes):
+def woman_clothes(clothes):  # Страница отвечающая за женскую одежду
     form = SearchForm()
     datum = ''
     data = []
@@ -50,14 +50,14 @@ def woman_clothes(clothes):
         return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
-    for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
-        datum = (i.name, i.price, i.pic)
+    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
+        datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
     return render_template('clothes.html', title='PANOS', form=form, data=data)
 
 
 @app.route("/man<clothes>")
-def man_clothes(clothes):
+def man_clothes(clothes):  # Страница отвечающая за мужскую одежду
     form = SearchForm()
     datum = ''
     data = []
@@ -67,10 +67,27 @@ def man_clothes(clothes):
         return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
-    for i in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.sex.like(like)):
-        datum = (i.name, i.price, i.pic)
+    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
+        datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
     return render_template('clothes.html', title='PANOS', form=form, data=data)
+
+
+@app.route("/<int:clothes>")
+def selected_clothes(clothes):  # Страница отвечающая за мужскую одежду
+    form = SearchForm()
+    datum = ''
+    data = []
+    if form.validate_on_submit():
+        print(form.search)
+        return 'АХАХАХАХАХА'
+    db_session.global_init("data.db")
+    db_sess = db_session.create_session()
+    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
+        datum = (i.name, i.price, i.av_sizes.split(","), i.pic)
+        data.append(datum)
+    print(data)
+    return render_template('selected_clothes.html', title='PANOS', form=form, data=data)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set data = data[0] %}
+<table border="0">
+  <tr>
+    <th>
+      <h2 style="margin-left:37%">
+     <img src="{{data[3]}}" width="130%"></h2>
+    </th>
+     <th><h2 style="margin-left:100%">{{data[0]}}</h2><br>
+     	<h4 style="margin-left:100%">{{data[1]}} руб.</h4><br>
+     	<select class="form-select" aria-label="Default select example" style="margin-left:100%">
+	    <option selected>Выберите размер</option>
+	    {% for i in data[2] %}
+	    <option value="1">{{i}}</option>
+	    {% endfor %}
+	    </select>
+	</th>
+  </tr>
+
+
+
+</table>
+
+{% endblock %}
+{% block title %} {{title}} {% endblock %}
