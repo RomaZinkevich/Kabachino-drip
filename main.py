@@ -6,8 +6,9 @@ from wtforms.validators import DataRequired
 import sys
 import json
 import random
-import sqlite3
 from data import db_session, clothes_db, user
+from passlib.hash import sha256_crypt
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hgowoeqeghsdlgh'
@@ -98,7 +99,7 @@ def login():
         db_session.global_init("data.db")
         db_sess = db_session.create_session()
         for i in db_sess.query(user.User):
-            if form.username.data == i.login and form.password.data == i.password:
+            if form.username.data == i.login and sha256_crypt.verify(str(form.password.data), i.password):
                 login_user(i)
                 return redirect('')
         return render_template('login.html', title='PANOS', form=form, error1='Введенный логин или пароль неправильный')
@@ -119,7 +120,7 @@ def register():
         user1 = user.User()
         user1.id = c + 1
         user1.login = form.username.data
-        user1.password = form.password.data
+        user1.password = sha256_crypt.encrypt(str(form.password.data))
         db_sess.add(user1)
         db_sess.commit()
         return redirect('login')
