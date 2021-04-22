@@ -16,11 +16,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-class SearchForm(FlaskForm):  # Класс для поисковой строки
-    search = StringField('', validators=[DataRequired()])
-    submit = SubmitField('Искать')
-
-
 class LoginForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -39,74 +34,54 @@ class RegisterForm(FlaskForm):
 
 @app.route("/")
 def main_page():  # Главная страница сайта
-    form = SearchForm()
-    if form.validate_on_submit():
-        print(form.search)
-        return 'АХАХАХАХАХА'
-    return render_template('main.html', title='PANOS', form=form)
+    return render_template('main.html', title='PANOS')
 
 
 @app.route("/<string:sex>")
 def gender(sex):  # Страница отвечающая за выбор пола
-    form = SearchForm()
-    if form.validate_on_submit():
-        print(form.search)
-        return 'АХАХАХАХАХА'
     if sex == 'woman' or sex == 'man':
-        return render_template('choice.html', title='PANOS', form=form, sex=sex)
+        return render_template('choice.html', title='PANOS', sex=sex)
     else:
         return "<h1> Ошибка: страница не найдена </h1>"
 
 
 @app.route("/woman<clothes>")
 def woman_clothes(clothes):  # Страница отвечающая за женскую одежду
-    form = SearchForm()
     datum = ''
     data = []
     like = 'F%'
-    if form.validate_on_submit():
-        print(form.search)
-        return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', form=form, data=data)
+    return render_template('clothes.html', title='PANOS', data=data)
 
 
 @app.route("/man<clothes>")
 def man_clothes(clothes):  # Страница отвечающая за мужскую одежду
-    form = SearchForm()
     datum = ''
     data = []
     like = '%M'
-    if form.validate_on_submit():
-        print(form.search)
-        return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', form=form, data=data)
+    return render_template('clothes.html', title='PANOS', data=data)
 
 
 @app.route("/<int:clothes>")
 def selected_clothes(clothes):  # Страница отвечающая за мужскую одежду
-    form = SearchForm()
     datum = ''
     data = []
-    if form.validate_on_submit():
-        print(form.search)
-        return 'АХАХАХАХАХА'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
         datum = (i.name, i.price, i.av_sizes.split(","), i.pic)
         data.append(datum)
     print(data)
-    return render_template('selected_clothes.html', title='PANOS', form=form, data=data)
+    return render_template('selected_clothes.html', title='PANOS', data=data)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -125,11 +100,6 @@ def login():
         print(form.username.data, i.login)
         return render_template('login.html', title='PANOS', form=form, error1='Введенный логин или пароль неправильный')
     return render_template('login.html', title='PANOS', form=form, error1='')
-
-
-@app.route("/logout", methods=['GET', 'POST'])
-def logout():
-    form = LoginForm()
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -153,16 +123,35 @@ def register():
     return render_template('reg.html', title='PANOS', form=form, error1='')
 
 
-@login_required
 @app.route("/profile")
+@login_required
 def profile():
-    print(current_user.id)
-    return 'ffffff'
+    data = []
+    datum = ''
+    db_session.global_init("data.db")
+    db_sess = db_session.create_session()
+    login = current_user.login
+    liked = (str(current_user.liked)).split(';')
+    if liked != ['None']:
+        liked = [int(i) for i in liked]
+    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id.in_(liked))):
+        datum = (i.name, i.price, i.pic, i.id)
+        data.append(datum)
+    print(data)
+    return render_template('profile.html', title='PANOS', data=data, login=login)
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    """User log-out logic."""
+    print(1)
+    logout_user()
+    return redirect(url_for('login'))
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Check if user is logged-in on every page load."""
     if user_id is not None:
         db_session.global_init("data.db")
         db_sess = db_session.create_session()
@@ -175,7 +164,7 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized():
     """Redirect unauthorized users to Login page."""
-    return 'дурак?'
+    return login()
 
 
 if __name__ == '__main__':
