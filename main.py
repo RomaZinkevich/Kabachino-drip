@@ -79,17 +79,20 @@ def selected_clothes(clothes):  # Страница отвечающая за м�
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
-        datum = (i.name, i.price, i.av_sizes.split(","), i.pic)
+        datum = (i.name, i.price, i.av_sizes.split(","), i.pic, i.id)
         data.append(datum)
-    print(data)
-    return render_template('selected_clothes.html', title='PANOS', data=data)
+    like = '♡'
+    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+        if str(clothes) in i.liked:
+            like = '❤'
+
+    return render_template('selected_clothes.html', title='PANOS', data=data, like=like)
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if current_user.is_authenticated:
-        print(current_user)
         return redirect(url_for('profile'))
     if request.method == "POST" and form.validate():
         db_session.global_init("data.db")
@@ -133,20 +136,36 @@ def profile():
     db_sess = db_session.create_session()
     login = current_user.login
     liked = (str(current_user.liked)).split(';')
+    print(liked)
     if liked != ['None']:
         liked = [int(i) for i in liked]
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id.in_(liked))):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    print(data)
     return render_template('profile.html', title='PANOS', data=data, login=login)
+
+
+@app.route("/upd<int:clothes>")
+@login_required
+def upd(clothes):
+    db_session.global_init('data.db')
+    db_sess = db_session.create_session()
+    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+        liked = str(i.liked).split(';')
+        if str(clothes) not in liked:
+            liked.append(str(clothes))
+        else:
+            liked.remove(str(clothes))
+        liked = ';'.join(liked)
+        i.liked = liked
+    db_sess.commit()
+    return selected_clothes(clothes)
 
 
 @app.route("/logout")
 @login_required
 def logout():
     """User log-out logic."""
-    print(1)
     logout_user()
     return redirect(url_for('login'))
 

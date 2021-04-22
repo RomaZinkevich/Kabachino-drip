@@ -11,11 +11,10 @@
      <th><h2 style="margin-left:100%">{{data[0]}}</h2><br>
      	<h4 style="margin-left:100%">{{data[1]}} руб.</h4><br>
      	<select class="form-select" aria-label="Default select example" style="margin-left:100%">
-	    <option selected>Выберите размер</option>
 	    {% for i in data[2] %}
 	    <option value="1">{{i}}</option>
 	    {% endfor %}
-	    </select>
+	    </select><h4 style="margin-left:100%"><a href="http://127.0.0.1:8080/upd{{data[4]}}" class="btn">{{like}}</a></h4><br>
 	</th>
   </tr>
 
@@ -25,3 +24,4 @@
 
 {% endblock %}
 {% block title %} {{title}} {% endblock %}
+🖤
