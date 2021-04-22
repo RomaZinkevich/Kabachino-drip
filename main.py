@@ -100,8 +100,7 @@ def login():
         for i in db_sess.query(user.User):
             if form.username.data == i.login and form.password.data == i.password:
                 login_user(i)
-                return main_page()
-        print(form.username.data, i.login)
+                return redirect('')
         return render_template('login.html', title='PANOS', form=form, error1='Введенный логин или пароль неправильный')
     return render_template('login.html', title='PANOS', form=form, error1='')
 
@@ -123,7 +122,7 @@ def register():
         user1.password = form.password.data
         db_sess.add(user1)
         db_sess.commit()
-        return login()
+        return redirect('login')
     return render_template('reg.html', title='PANOS', form=form, error1='')
 
 
@@ -162,7 +161,7 @@ def upd(clothes, prev):
             liked = str(clothes)
         i.liked = liked
     db_sess.commit()
-    return selected_clothes(clothes, prev)
+    return redirect(f'{clothes}{prev}')
 
 
 @app.route("/logout")
@@ -170,7 +169,7 @@ def upd(clothes, prev):
 def logout():
     """User log-out logic."""
     logout_user()
-    return redirect(url_for('login'))
+    return redirect('login')
 
 
 @login_manager.user_loader

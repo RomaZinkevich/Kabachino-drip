@@ -7,7 +7,7 @@
 
 
 
-<h1> Привет, {{login}}</h1> <p style='text-align: right;margin-right: 3%'> <button><a href="https://shopflask.herokuapp.com/logout" class="btn"> Выйти </a></button>
+<h1> Привет, {{login}}</h1> <p style='text-align: right;margin-right: 3%'> <button><a href="http://127.0.0.1:8080/logout" class="btn"> Выйти </a></button>
 {% if data!=[] %} 
 <br> <h2> Ваши понравившиеся: </h2><br>
 <table class="table caption-top">
@@ -18,7 +18,7 @@
 
     <tr>
       <td><h2>{{i[0]}}</h2>
-      	<a href="https://shopflask.herokuapp.com/{{i[3]}}{{page}}">
+      	<a href="http://127.0.0.1:8080/{{i[3]}}{{page}}">
 
      <img src={{i[2]}} width="30%"></a>
      
