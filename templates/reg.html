@@ -1,0 +1,51 @@
+{% extends "base_log.html" %}
+
+{% block content %}
+<style>
+@supports (-webkit-text-stroke: 1px black) { 
+  p {
+    color: transparent; 
+    -webkit-text-stroke: 1px black;
+  }
+}
+</style>
+<h1 style="text-align: center"> Регистрация</h1>
+<br><br><br><br><br><br><br><br>
+<form style="text-align: center" action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="layer1">
+    
+        <h1> <p><font color="white">{{ form.username.label }}</font></p></h1><br>
+        {{ form.username(class="form-control") }}<br>
+        {% for error in form.username.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+   
+    
+        <h1> <p><font color="white">{{ form.password.label }}</font></p></h1><br>
+        {{ form.password(class="form-control", type="password") }}<br>
+        {% for error in form.password.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+
+    {% endfor %}
+
+    <h1> <p><font color="white">{{ form.confirm.label }}</font></p></h1><br>
+        {{ form.confirm(class="form-control", type="password") }}<br>
+        {% for error in form.confirm.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    
+    {% endfor %}
+    <h2><font color="red">{{error1}}</h2></font>
+    <br>
+    <button formaction="login">Авторизация</button>    {{ form.submit(type="submit", class="btn btn-primary") }}
+
+
+
+{% endblock %}
+{% block title %} {{title}} {% endblock %}
