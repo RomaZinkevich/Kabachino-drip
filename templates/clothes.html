@@ -15,11 +15,11 @@
     <tr>
     {% else %} 
     {% endif %}
-      <td><a href="http://127.0.0.1:8080/{{i[3]}}{{page}}">
+      <td><a href="https://shopflask.herokuapp.com/{{i[3]}}{{page}}">
 
      <img src={{i[2]}} width="100%"></a>
      <h2>{{i[0]}}</h2>
-     <h4><p style="margin-left:30%"> {{i[1]}} руб.</p></h4></td>
+     <h4>{% if i[3] in liked %} ❤ {%  else  %} ♡ {% endif %}<p style="margin-left:30%"> {{i[1]}} руб.</p></h4></td>
     
   
 

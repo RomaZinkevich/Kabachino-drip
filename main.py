@@ -54,9 +54,10 @@ def woman_clothes(clothes):  # Страница отвечающая за жен
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
-        datum = (i.name, i.price, i.pic, i.id)
+        datum = (i.name, i.price, i.pic, str(i.id))
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', data=data, page=f'woman{clothes}')
+    liked = current_user.liked
+    return render_template('clothes.html', title='PANOS', data=data, page=f'woman{clothes}', liked=liked)
 
 
 @app.route("/man<clothes>")
@@ -67,9 +68,10 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
-        datum = (i.name, i.price, i.pic, i.id)
+        datum = (i.name, i.price, i.pic, str(i.id))
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', data=data, page=f'man{clothes}')
+    liked = current_user.liked
+    return render_template('clothes.html', title='PANOS', data=data, page=f'man{clothes}', liked=liked)
 
 
 @app.route("/<int:clothes><prev>")

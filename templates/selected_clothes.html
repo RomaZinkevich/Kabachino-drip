@@ -3,7 +3,7 @@
 {% block content %}
 {% set data = data[0] %}
 
-<button><a href="http://127.0.0.1:8080/{{prev}}" class="btn"> Назад </a></button>
+<button><a href="https://shopflask.herokuapp.com/{{prev}}" class="btn"> Назад </a></button>
 <table border="0">
   <tr>
     <th>
@@ -16,7 +16,7 @@
 	    {% for i in data[2] %}
 	    <option value="1">{{i}}</option>
 	    {% endfor %}
-	    </select><h4 style="margin-left:100%"><a href="http://127.0.0.1:8080/upd{{data[4]}}{{prev}}" class="btn">{{like}}</a></h4><br>
+	    </select><h4 style="margin-left:100%"><a href="https://shopflask.herokuapp.com/upd{{data[4]}}{{prev}}" class="btn">{{like}}</a></h4><br>
 	</th>
   </tr>
 
