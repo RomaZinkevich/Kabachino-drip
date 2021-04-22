@@ -11,6 +11,7 @@ class User(UserMixin, SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     login = sqlalchemy.Column(sqlalchemy.String, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String)
+    liked = sqlalchemy.Column(sqlalchemy.String)
 
     def __repr__(self):
         return '<User {}>'.format(self.login)
