@@ -55,7 +55,7 @@ def woman_clothes(clothes):  # Страница отвечающая за жен
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', data=data)
+    return render_template('clothes.html', title='PANOS', data=data, page=f'woman{clothes}')
 
 
 @app.route("/man<clothes>")
@@ -68,12 +68,12 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    return render_template('clothes.html', title='PANOS', data=data)
+    return render_template('clothes.html', title='PANOS', data=data, page=f'man{clothes}')
 
 
-@app.route("/<int:clothes>")
+@app.route("/<int:clothes><prev>")
 @login_required
-def selected_clothes(clothes):  # Страница отвечающая за мужскую одежду
+def selected_clothes(clothes, prev):  # Страница отвечающая за мужскую одежду
     datum = ''
     data = []
     db_session.global_init("data.db")
@@ -83,10 +83,10 @@ def selected_clothes(clothes):  # Страница отвечающая за м�
         data.append(datum)
     like = '♡'
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
-        if str(clothes) in i.liked:
-            like = '❤'
-
-    return render_template('selected_clothes.html', title='PANOS', data=data, like=like)
+        if i.liked:
+            if str(clothes) in i.liked:
+                like = '❤'
+    return render_template('selected_clothes.html', title='PANOS', data=data, like=like, prev=prev)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -137,29 +137,32 @@ def profile():
     login = current_user.login
     liked = (str(current_user.liked)).split(';')
     print(liked)
-    if liked != ['None']:
+    if liked != ['None'] and liked != ['']:
         liked = [int(i) for i in liked]
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id.in_(liked))):
         datum = (i.name, i.price, i.pic, i.id)
         data.append(datum)
-    return render_template('profile.html', title='PANOS', data=data, login=login)
+    return render_template('profile.html', title='PANOS', data=data, login=login, page='profile')
 
 
-@app.route("/upd<int:clothes>")
+@app.route("/upd<int:clothes><prev>")
 @login_required
-def upd(clothes):
+def upd(clothes, prev):
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
-        liked = str(i.liked).split(';')
-        if str(clothes) not in liked:
-            liked.append(str(clothes))
+        if i.liked:
+            liked = str(i.liked).split(';')
+            if str(clothes) not in liked:
+                liked.append(str(clothes))
+            else:
+                liked.remove(str(clothes))
+            liked = ';'.join(liked)
         else:
-            liked.remove(str(clothes))
-        liked = ';'.join(liked)
+            liked = str(clothes)
         i.liked = liked
     db_sess.commit()
-    return selected_clothes(clothes)
+    return selected_clothes(clothes, prev)
 
 
 @app.route("/logout")
