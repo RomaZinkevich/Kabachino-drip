@@ -72,6 +72,7 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
 
 
 @app.route("/<int:clothes>")
+@login_required
 def selected_clothes(clothes):  # Страница отвечающая за мужскую одежду
     datum = ''
     data = []
