@@ -8,10 +8,8 @@
 
 
 <h1> Привет, {{login}}</h1> <p style='text-align: right;margin-right: 3%'> 
-<button><a href="http://127.0.0.1:8080/cart" class="btn"><h1> 🛒 </h1></a></button>
-<button><a href="http://127.0.0.1:8080/logout" class="btn"> <h5>Выйти</h5> </a></button>
 {% if data!=[] %} 
-<br> <h2> Ваши понравившиеся: </h2><br>
+<br> <h2> Ваша корзина: </h2><br>
 <table class="table caption-top">
       
 <tbody>
@@ -32,9 +30,8 @@
 </tbody>
 </table>
 {% else %} 
-<br> <h2> У вас пока нет понравившихся </h2><br>
+<br> <h2> Ваша корзина пуста </h2><br>
 {% endif %}
 
 {% endblock %}
 {% block title %} {{title}} {% endblock %}
-
