@@ -3,7 +3,7 @@
 {% block content %}
 {% set data = data[0] %}
 
-<button><a href="shopflask.herokuapp.com/{{prev}}" class="btn"> Назад </a></button>
+<button><a href="shopflask.herokuapp/{{prev}}" class="btn"> Назад </a></button>
 <table border="0">
   <tr>
     <th>
@@ -16,7 +16,7 @@
         {{form.sost}}
       
       <h4 style="margin-left:100%">
-        <a href="shopflask.herokuapp.com/upd{{data[4]}}{{prev}}" class="btn">
+        <a href="shopflask.herokuapp/upd{{data[4]}}{{prev}}" class="btn">
         {{like}}
       </a></h4>
       <button type="submit" style="margin-left: 100%"> <h4>🛒 </h4></button></form><br><br>
