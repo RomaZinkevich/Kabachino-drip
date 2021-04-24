@@ -191,18 +191,21 @@ def cart(flag):
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     login = current_user.login
-    carted_start = (str(current_user.carted)).split(';')
-    if carted_start != ['']:
-        carted = []
-        for i in carted_start:
-            i = i.split(',')
-            carted.append(i)
-        for j in carted:
-            for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
-                datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
-                data.append(datum)
+    if current_user.carted != None:
+        carted_start = (str(current_user.carted)).split(';')
+        if carted_start != ['']:
+            carted = []
+            for i in carted_start:
+                i = i.split(',')
+                carted.append(i)
+            for j in carted:
+                for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
+                    datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
+                    data.append(datum)
+        else:
+            carted = []
     else:
-        carted = []
+        data = []
     return render_template('cart.html', title='KABACHINO-DRIP', data=data, login=login, page='cart', flag=flag)
 
 
