@@ -33,8 +33,13 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
 
-class WeatherAddForm(FlaskForm):
-    sost = SelectField("Размер: ", choices=['1', '2', '3', '4'])
+class ClothesSizesForm(FlaskForm):
+    sost = SelectField("Размер: ", choices="XS;S;M;L;XL".split(';'))
+
+
+class ShoesSizesForm(FlaskForm):
+    sost = SelectField(
+        "Размер: ", choices="UK 6;UK 7;UK 8;UK 9;UK 10;UK 11;UK 12".split(';'))
 
 
 @app.route("/")
@@ -64,7 +69,6 @@ def woman_clothes(clothes):  # Страница отвечающая за жен
         liked = None
     else:
         liked = current_user.liked
-    liked = current_user.liked
     return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'woman{clothes}', liked=liked)
 
 
@@ -92,10 +96,14 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
     data = []
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
-    form = WeatherAddForm()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
         datum = (i.name, i.price, i.av_sizes.split(","), i.pic, i.id)
+        clothes_type = i.type
         data.append(datum)
+    if clothes_type == 'shoes':
+        form = ShoesSizesForm()
+    else:
+        form = ClothesSizesForm()
     like = '♡'
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
         if i.liked:
@@ -114,7 +122,7 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
                     carted.append(i)
             carted_start = []
             for i in carted:
-                if i[0] == str(clothes):
+                if i[0] == str(clothes) and i[2] == form.sost.data:
                     flag = True
                     i[1] = str(int(i[1]) + 1)
                 carted_start.append(i)
@@ -183,14 +191,15 @@ def profile():
     return render_template('profile.html', title='KABACHINO-DRIP', data=data, login=login, page='profile')
 
 
-@app.route("/cart<int:flag>")
+@app.route("/cart<int:clothes><string:size><int:flag>")
 @login_required
-def cart(flag):
+def cart(size, flag, clothes):
     data = []
     datum = ''
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     login = current_user.login
+    total_price = 0
     if current_user.carted != None:
         carted_start = (str(current_user.carted)).split(';')
         if carted_start != ['']:
@@ -200,13 +209,14 @@ def cart(flag):
                 carted.append(i)
             for j in carted:
                 for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
+                    total_price += int(i.price) * int(j[1])
                     datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
                     data.append(datum)
         else:
             carted = []
     else:
         data = []
-    return render_template('cart.html', title='KABACHINO-DRIP', data=data, login=login, page='cart', flag=flag)
+    return render_template('cart.html', title='KABACHINO-DRIP', total_price=total_price, size=size, clothes=clothes, data=data, login=login, page='cart', flag=flag)
 
 
 @app.route("/upd<int:clothes><prev>")
@@ -229,14 +239,24 @@ def upd(clothes, prev):
     return redirect(f'{clothes}{prev}')
 
 
-@app.route("/plus<int:clothes><prev>")
+@app.route("/<size>plus<int:clothes><prev>")
 @login_required
-def plus(clothes, prev):
+def plus(size, clothes, prev):
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     carted_start = (str(current_user.carted)).split(';')
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
         remaining = i.remaining
+    remaining = remaining.split(';')
+    size_full = ''
+    if 'UK' in size:
+        size, size_full = size.split(' ')[1], size
+    for i in remaining:
+        j = i.split(':')
+        if str(j[0]) == size:
+            rem_size = int(j[1])
+    if 'UK' in size_full:
+        size = size_full
     carted = []
     carted_fin = []
     maxi = False
@@ -244,8 +264,8 @@ def plus(clothes, prev):
         i = i.split(',')
         carted.append(i)
     for i in carted:
-        if int(i[0]) == clothes:
-            if int(i[1]) == 20 or int(i[1]) >= int(remaining):
+        if int(i[0]) == clothes and i[2] == size:
+            if int(i[1]) == 20 or int(i[1]) >= rem_size:
                 maxi = True
                 carted_fin.append([i[0], str(int(i[1])), i[2]])
             else:
@@ -260,13 +280,13 @@ def plus(clothes, prev):
         i.carted = carted
     db_sess.commit()
     if maxi:
-        return redirect(f'{prev}{int(maxi)}')
-    return redirect(f'{prev}0')
+        return redirect(f'cart{clothes}{size}1')
+    return redirect(f'cart{clothes}{size}0')
 
 
-@app.route("/minus<int:clothes><prev>")
+@app.route("/<size>minus<int:clothes><prev>")
 @login_required
-def minus(clothes, prev):
+def minus(size, clothes, prev):
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     carted_start = (str(current_user.carted)).split(';')
@@ -277,7 +297,7 @@ def minus(clothes, prev):
         i = i.split(',')
         carted.append(i)
     for i in carted:
-        if int(i[0]) == clothes:
+        if int(i[0]) == clothes and i[2] == size:
             if int(i[1]) == 1:
                 mini = True
                 carted_fin.append([i[0], int(i[1]), i[2]])
@@ -288,7 +308,7 @@ def minus(clothes, prev):
     carted_final = []
     if mini:
         for i in carted:
-            if i[0] != str(clothes):
+            if i[0] != str(clothes) or i[2] != size:
                 carted_final.append(i)
         carted_fin = carted_final
     carted = []
@@ -298,7 +318,7 @@ def minus(clothes, prev):
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
         i.carted = carted
     db_sess.commit()
-    return redirect(f'{prev}0')
+    return redirect(f'cart000')
 
 
 @app.route("/logout")
