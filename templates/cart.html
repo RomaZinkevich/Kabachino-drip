@@ -17,10 +17,18 @@
 {% for i in data %} </tr>
 
     <tr>
-      <td><h2>{{i[0]}}</h2>
-      	<a href="http://127.0.0.1:8080/{{i[3]}}{{page}}">
+      <td><h2>{{i[0]}} {{i[5]}} размер</h2>
+      	
 
-     <img src={{i[2]}} width="30%"></a>
+     
+     <a href="http://127.0.0.1:8080/{{i[3]}}{{page}}">
+     	<img src={{i[2]}} width="15%"></a>
+
+    <div class="btn-group me-2" role="group" aria-label="Second group">
+    <button type="button" class="btn btn-secondary"><a href="http://127.0.0.1:8080/minus{{i[3]}}{{page}}" class="btn" ><font color='white'>-</font></a></button>
+    <button type="button" class="btn btn-secondary" disabled aria-label="Close"><a class="btn"><font color='white'>{{i[4]}}</font></a></button>
+    <button type="button" class="btn btn-secondary"><a href="http://127.0.0.1:8080/plus{{i[3]}}{{page}}" class="btn"><font color='white'>+</font></a></button>
+  </div>
      
      <h4><p style="margin-left:10%"> {{i[1]}} руб.</p></h4></td>
   

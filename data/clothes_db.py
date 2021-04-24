@@ -14,3 +14,4 @@ class Clothes(SqlAlchemyBase):
     av_sizes = sqlalchemy.Column(sqlalchemy.String)
     sex = sqlalchemy.Column(sqlalchemy.String)
     type = sqlalchemy.Column(sqlalchemy.String)
+    remaining = sqlalchemy.Column(sqlalchemy.Integer)

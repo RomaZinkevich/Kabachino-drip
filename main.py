@@ -158,18 +158,41 @@ def cart():
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     login = current_user.login
-    carted = (str(current_user.carted)).split(';')
-    if carted != ['None'] and carted != ['']:
-        carted = [int(i) for i in carted]
-    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id.in_(carted))):
-        datum = (i.name, i.price, i.pic, i.id)
-        data.append(datum)
+    carted_start = (str(current_user.carted)).split(';')
+    carted = []
+    for i in carted_start:
+        i = i.split(',')
+        carted.append(i)
+    for j in carted:
+        for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
+            datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
+            data.append(datum)
     return render_template('cart.html', title='KABACHINO-DRIP', data=data, login=login, page='cart')
 
 
 @app.route("/upd<int:clothes><prev>")
 @login_required
 def upd(clothes, prev):
+    db_session.global_init('data.db')
+    db_sess = db_session.create_session()
+    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+        if i.liked:
+            liked = str(i.liked).split(';')
+            if str(clothes) not in liked:
+                liked.append(str(clothes))
+            else:
+                liked.remove(str(clothes))
+            liked = ';'.join(liked)
+        else:
+            liked = str(clothes)
+        i.liked = liked
+    db_sess.commit()
+    return redirect(f'{clothes}{prev}')
+
+
+@app.route("/plus<clothes><prev>")
+@login_required
+def plus(clothes, prev):
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
