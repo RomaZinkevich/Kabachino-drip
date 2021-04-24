@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_required, logout_user, current_user, login_user
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, validators
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, validators, SelectField, TextField
 from wtforms.validators import DataRequired
 import sys
 import json
@@ -33,6 +33,10 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
 
+class WeatherAddForm(FlaskForm):
+    sost = SelectField("Размер: ", choices=['1', '2', '3', '4'])
+
+
 @app.route("/")
 def main_page():  # Главная страница сайта
     return render_template('main.html', title='KABACHINO-DRIP')
@@ -56,6 +60,10 @@ def woman_clothes(clothes):  # Страница отвечающая за жен
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
         datum = (i.name, i.price, i.pic, str(i.id))
         data.append(datum)
+    if not current_user.is_authenticated:
+        liked = None
+    else:
+        liked = current_user.liked
     liked = current_user.liked
     return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'woman{clothes}', liked=liked)
 
@@ -65,7 +73,6 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
     datum = ''
     data = []
     like = '%M'
-    print(current_user.is_authenticated)
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.sex.like(like)), (clothes_db.Clothes.type == clothes)):
@@ -78,22 +85,48 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
     return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'man{clothes}', liked=liked)
 
 
-@app.route("/<int:clothes><prev>")
+@app.route("/<int:clothes><prev>", methods=['GET', 'POST'])
 @login_required
 def selected_clothes(clothes, prev):  # Страница отвечающая за мужскую одежду
     datum = ''
     data = []
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
+    form = WeatherAddForm()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
         datum = (i.name, i.price, i.av_sizes.split(","), i.pic, i.id)
         data.append(datum)
     like = '♡'
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
         if i.liked:
-            if str(clothes) in i.liked:
+            if str(clothes) + ";" in i.liked or str(clothes) == i.liked or ";" + str(clothes) in i.liked:
                 like = '❤'
-    return render_template('selected_clothes.html', title='KABACHINO-DRIP', data=data, like=like, prev=prev)
+    if request.method == 'POST':
+        # for i in db_sess.query(user.User).filter((user.User.id == current_user.id)):
+        carted = []
+        carted_fin = []
+        flag = False
+        if current_user.carted != None:
+            carted_start = (str(current_user.carted)).split(';')
+            if carted_start != ['']:
+                for i in carted_start:
+                    i = i.split(',')
+                    carted.append(i)
+            carted_start = []
+            for i in carted:
+                if i[0] == str(clothes):
+                    flag = True
+                    i[1] = str(int(i[1]) + 1)
+                carted_start.append(i)
+        if not flag:
+            carted.append([str(clothes), '1', form.sost.data])
+        for i in carted:
+            carted_fin.append(','.join(i))
+        carted_fin = ';'.join(carted_fin)
+        for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+            i.carted = carted_fin
+        db_sess.commit()
+    return render_template('selected_clothes.html', title='KABACHINO-DRIP', form=form, data=data, like=like, prev=prev)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -150,24 +183,27 @@ def profile():
     return render_template('profile.html', title='KABACHINO-DRIP', data=data, login=login, page='profile')
 
 
-@app.route("/cart")
+@app.route("/cart<int:flag>")
 @login_required
-def cart():
+def cart(flag):
     data = []
     datum = ''
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     login = current_user.login
     carted_start = (str(current_user.carted)).split(';')
-    carted = []
-    for i in carted_start:
-        i = i.split(',')
-        carted.append(i)
-    for j in carted:
-        for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
-            datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
-            data.append(datum)
-    return render_template('cart.html', title='KABACHINO-DRIP', data=data, login=login, page='cart')
+    if carted_start != ['']:
+        carted = []
+        for i in carted_start:
+            i = i.split(',')
+            carted.append(i)
+        for j in carted:
+            for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == int((j[0])))):
+                datum = (i.name, i.price, i.pic, i.id, j[1], j[2])
+                data.append(datum)
+    else:
+        carted = []
+    return render_template('cart.html', title='KABACHINO-DRIP', data=data, login=login, page='cart', flag=flag)
 
 
 @app.route("/upd<int:clothes><prev>")
@@ -190,24 +226,76 @@ def upd(clothes, prev):
     return redirect(f'{clothes}{prev}')
 
 
-@app.route("/plus<clothes><prev>")
+@app.route("/plus<int:clothes><prev>")
 @login_required
 def plus(clothes, prev):
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
-    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
-        if i.liked:
-            liked = str(i.liked).split(';')
-            if str(clothes) not in liked:
-                liked.append(str(clothes))
+    carted_start = (str(current_user.carted)).split(';')
+    for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
+        remaining = i.remaining
+    carted = []
+    carted_fin = []
+    maxi = False
+    for i in carted_start:
+        i = i.split(',')
+        carted.append(i)
+    for i in carted:
+        if int(i[0]) == clothes:
+            if int(i[1]) == 20 or int(i[1]) >= int(remaining):
+                maxi = True
+                carted_fin.append([i[0], str(int(i[1])), i[2]])
             else:
-                liked.remove(str(clothes))
-            liked = ';'.join(liked)
+                carted_fin.append([i[0], str(int(i[1]) + 1), i[2]])
         else:
-            liked = str(clothes)
-        i.liked = liked
+            carted_fin.append([i[0], i[1], i[2]])
+    carted = []
+    for i in carted_fin:
+        carted.append(','.join(i))
+    carted = ';'.join(carted)
+    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+        i.carted = carted
     db_sess.commit()
-    return redirect(f'{clothes}{prev}')
+    if maxi:
+        return redirect(f'{prev}{int(maxi)}')
+    return redirect(f'{prev}0')
+
+
+@app.route("/minus<int:clothes><prev>")
+@login_required
+def minus(clothes, prev):
+    db_session.global_init('data.db')
+    db_sess = db_session.create_session()
+    carted_start = (str(current_user.carted)).split(';')
+    carted = []
+    carted_fin = []
+    mini = False
+    for i in carted_start:
+        i = i.split(',')
+        carted.append(i)
+    for i in carted:
+        if int(i[0]) == clothes:
+            if int(i[1]) == 1:
+                mini = True
+                carted_fin.append([i[0], int(i[1]), i[2]])
+            else:
+                carted_fin.append([i[0], str(int(i[1]) - 1), i[2]])
+        else:
+            carted_fin.append([i[0], i[1], i[2]])
+    carted_final = []
+    if mini:
+        for i in carted:
+            if i[0] != str(clothes):
+                carted_final.append(i)
+        carted_fin = carted_final
+    carted = []
+    for i in carted_fin:
+        carted.append(','.join(i))
+    carted = ';'.join(carted)
+    for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+        i.carted = carted
+    db_sess.commit()
+    return redirect(f'{prev}0')
 
 
 @app.route("/logout")

@@ -21,16 +21,38 @@
       	
 
      
-     <a href="http://127.0.0.1:8080/{{i[3]}}{{page}}">
+     <a href="https://shopflask.herokuapp.com/{{i[3]}}{{page}}">
      	<img src={{i[2]}} width="15%"></a>
 
     <div class="btn-group me-2" role="group" aria-label="Second group">
-    <button type="button" class="btn btn-secondary"><a href="http://127.0.0.1:8080/minus{{i[3]}}{{page}}" class="btn" ><font color='white'>-</font></a></button>
-    <button type="button" class="btn btn-secondary" disabled aria-label="Close"><a class="btn"><font color='white'>{{i[4]}}</font></a></button>
-    <button type="button" class="btn btn-secondary"><a href="http://127.0.0.1:8080/plus{{i[3]}}{{page}}" class="btn"><font color='white'>+</font></a></button>
+
+    <a href="https://shopflask.herokuapp.com/minus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
+      <button type="button" class="btn btn-secondary">
+       <font color='white'>-</font>
+      </button>
+    </a>
+
+    <button type="button" class="btn btn-secondary" disabled aria-label="Close">
+      <a class="btn">
+        <font color='white'>{{i[4]}}</font>
+      </a>
+    </button>
+
+    <a href="https://shopflask.herokuapp.com/plus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
+      <button type="button" class="btn btn-secondary">
+       <font color='white'>+</font>
+      </button>
+    </a> 
   </div>
+
      
-     <h4><p style="margin-left:10%"> {{i[1]}} руб.</p></h4></td>
+     <h4><p style="margin-left:10%"> {{i[1]}} руб.</p></h4> 
+     {% if flag %}
+     <font color="red">
+      <h1>  Максимум </h1>
+    </font>
+  {% endif %}
+</td>
   
 
 {% endfor %}
