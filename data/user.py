@@ -13,6 +13,7 @@ class User(UserMixin, SqlAlchemyBase):
     password = sqlalchemy.Column(sqlalchemy.String)
     liked = sqlalchemy.Column(sqlalchemy.String)
     carted = sqlalchemy.Column(sqlalchemy.String)
+    status = sqlalchemy.Column(sqlalchemy.String)
 
     def __repr__(self):
         return '<User {}>'.format(self.login)

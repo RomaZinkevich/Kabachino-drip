@@ -10,11 +10,20 @@
 <tbody>
     <tr>
 {% for i in data %}
-      {% if loop.index % 4==0 %} </tr>
+      {% if loop.index % 3==0 %} <td>
+        <a href="https://shopflask.herokuapp.com/{{i[3]}}{{page}}">
+
+     <img src={{i[2]}} width="100%"></a>
+     <h2>{{i[0]}}</h2>
+     {% if liked %}
+     <h4>{% if i[3] in liked %} ❤ {%  else  %} ♡ {% endif %} </h4> 
+     {% else %} ♡ {% endif %} 
+     <h4><p style="margin-left:30%"> {{i[1]}} руб.</p></h4></td>
+ </tr>
 
     <tr>
     {% else %} 
-    {% endif %}
+    
       <td><a href="https://shopflask.herokuapp.com/{{i[3]}}{{page}}">
 
      <img src={{i[2]}} width="100%"></a>
@@ -24,7 +33,7 @@
      {% else %} ♡ {% endif %} 
      <h4><p style="margin-left:30%"> {{i[1]}} руб.</p></h4></td>
     
-  
+  {% endif %}
 
 {% endfor %}
 </tr>

@@ -4,11 +4,11 @@
 
 {% set data = data %}
 {% set login = login %}
-
-
-
 <h1> Привет, {{login}}</h1> <p style='text-align: right;margin-right: 3%'> 
 {% if data!=[] %} 
+
+<h1> Всего: {{total_price}} руб.</h1>
+
 <br> <h2> Ваша корзина: </h2><br>
 <table class="table caption-top">
       
@@ -17,7 +17,7 @@
 {% for i in data %} </tr>
 
     <tr>
-      <td><h2>{{i[0]}} {{i[5]}} размер</h2>
+      <td><h2>{{i[0]}} {{i[5]}}</h2>
       	
 
      
@@ -26,7 +26,7 @@
 
     <div class="btn-group me-2" role="group" aria-label="Second group">
 
-    <a href="https://shopflask.herokuapp.com/minus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
+    <a href="https://shopflask.herokuapp.com/{{i[5]}}minus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
       <button type="button" class="btn btn-secondary">
        <font color='white'>-</font>
       </button>
@@ -38,20 +38,19 @@
       </a>
     </button>
 
-    <a href="https://shopflask.herokuapp.com/plus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
+    <a href="https://shopflask.herokuapp.com/{{i[5]}}plus{{i[3]}}{{page}}" type="button" class="btn btn-secondary">
       <button type="button" class="btn btn-secondary">
        <font color='white'>+</font>
       </button>
     </a> 
   </div>
 
-     
-     <h4><p style="margin-left:10%"> {{i[1]}} руб.</p></h4> 
-     {% if flag %}
-     <font color="red">
+     <h4><p style="margin-left:10%"> {{i[1]}} руб.  </p></h4> 
+     {% if flag %} {% if i[5]==size %} {% if i[3]==clothes %} 
+    <font color="red">
       <h1>  Максимум </h1>
     </font>
-  {% endif %}
+  {% endif %}{% endif %}{% endif %}
 </td>
   
 
