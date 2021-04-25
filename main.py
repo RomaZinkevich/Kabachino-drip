@@ -69,7 +69,16 @@ def woman_clothes(clothes):  # Страница отвечающая за жен
         liked = None
     else:
         liked = current_user.liked
-    return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'woman{clothes}', liked=liked)
+    like = []
+    for i in data:
+        if liked:
+            if str(i[3]) + ";" in liked or str(i[3]) == liked or ";" + str(i[3]) in liked:
+                like.append('❤')
+            else:
+                like.append('♡')
+        else:
+            like.append('♡')
+    return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'woman{clothes}', liked=like)
 
 
 @app.route("/man<clothes>")
@@ -86,7 +95,16 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
         liked = None
     else:
         liked = current_user.liked
-    return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'man{clothes}', liked=liked)
+    like = []
+    for i in data:
+        if liked:
+            if str(i[3]) + ";" in liked or str(i[3]) == liked or ";" + str(i[3]) in liked:
+                like.append('❤')
+            else:
+                like.append('♡')
+        else:
+            like.append('♡')
+    return render_template('clothes.html', title='KABACHINO-DRIP', data=data, page=f'man{clothes}', liked=like)
 
 
 @app.route("/<int:clothes><prev>", methods=['GET', 'POST'])
@@ -94,6 +112,7 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
 def selected_clothes(clothes, prev):  # Страница отвечающая за мужскую одежду
     datum = ''
     data = []
+    carted_point = '🛒'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
     for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
@@ -134,12 +153,13 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
         for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
             i.carted = carted_fin
         db_sess.commit()
-    return render_template('selected_clothes.html', title='KABACHINO-DRIP', form=form, data=data, like=like, prev=prev)
+    return render_template('selected_clothes.html', title='KABACHINO-DRIP', carted=carted_point, form=form, data=data, like=like, prev=prev)
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    error1 = ''
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     if request.method == "POST" and form.validate():
@@ -149,8 +169,8 @@ def login():
             if form.username.data == i.login and sha256_crypt.verify(str(form.password.data), i.password):
                 login_user(i)
                 return redirect('')
-        return render_template('login.html', title='KABACHINO-DRIP', form=form, error1='Введенный логин или пароль неправильный')
-    return render_template('login.html', title='KABACHINO-DRIP', form=form, error1='')
+        error1 = 'Введенный логин или пароль неправильный'
+    return render_template('login.html', title='KABACHINO-DRIP', form=form, error1=error1)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -219,9 +239,10 @@ def cart(size, flag, clothes):
     return render_template('cart.html', title='KABACHINO-DRIP', total_price=total_price, size=size, clothes=clothes, data=data, login=login, page='cart', flag=flag)
 
 
-@app.route("/upd<int:clothes><prev>")
+@app.route("/upd<int:clothes><prev><int:flag>", methods=['GET', 'POST'])
 @login_required
-def upd(clothes, prev):
+def upd(clothes, prev, flag):
+    print(1)
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
@@ -236,6 +257,8 @@ def upd(clothes, prev):
             liked = str(clothes)
         i.liked = liked
     db_sess.commit()
+    if flag:
+        return redirect(prev)
     return redirect(f'{clothes}{prev}')
 
 

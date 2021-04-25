@@ -21,7 +21,7 @@
         {{ form.username(class="form-control") }}<br>
         {% for error in form.username.errors %}
     <div class="alert alert-danger" role="alert">
-        {{ error }}
+        <h2><font color="red"> {{ error }}</h2></font>
     </div>
     {% endfor %}
    
@@ -30,11 +30,11 @@
         {{ form.password(class="form-control", type="password") }}<br>
         {% for error in form.password.errors %}
     <div class="alert alert-danger" role="alert">
-        {{ error }}
+        <h2><font color="red"> {{ error }}</h2></font>
     </div>
     {% endfor %}
     <br>
-    <button formaction="register">Регистрация</button>    {{ form.submit(type="submit", class="btn btn-primary") }}
+     {{ form.submit(type="submit", class="btn btn-primary") }} <button formaction="register">Регистрация</button>   
 
     <h2><font color="red">{{error1}}</h2></font>
 </div>
