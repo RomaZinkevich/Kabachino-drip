@@ -59,7 +59,7 @@ def main_page():  # Главная страница сайта
     return render_template('main.html', title='KABACHINO-DRIP')
 
 
-@app.route("/success<page>")
+@app.route("/success<page>", methods=['GET', 'POST'])
 @login_required
 def success(page):
     return render_template('success.html', title='KABACHINO-DRIP', error1='', page=page)
@@ -296,7 +296,7 @@ def register():
     return render_template('reg.html', title='KABACHINO-DRIP', form=form, error1='')
 
 
-@app.route("/profile")
+@app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():
     data = []
@@ -313,7 +313,7 @@ def profile():
     return render_template('profile.html', title='KABACHINO-DRIP', data=data, login=login, page='profile')
 
 
-@app.route("/cart<int:clothes><string:size><int:flag>")
+@app.route("/cart<int:clothes><string:size><int:flag>", methods=['GET', 'POST'])
 @login_required
 def cart(size, flag, clothes):
     data = []
