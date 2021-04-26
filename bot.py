@@ -10,6 +10,6 @@ def message(message):
     bot.send_message('1458879576', message)
 
 
-def send_photo(pic):
+def send_photo(pic, mem=0, meme=0):
     photo = open(pic, 'rb')
     bot.send_photo('1458879576', photo)

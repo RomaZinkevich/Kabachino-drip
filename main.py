@@ -76,6 +76,7 @@ def order(page):
             if i.carted:
                 carted_start = (str(i.carted)).split(';')
                 i.carted = ''
+                price = 0
                 carted = []
                 for j in carted_start:
                     j = j.split(',')
@@ -107,6 +108,7 @@ def order(page):
                         text += f'''{clothes_name} в количестве {e[1]} шт. {e[2]}
                         Данной одежды осталось {remain}
                         '''
+                        price += total_price
                         if clothes_pic not in pics:
                             pics.append(clothes_pic)
                 message(f"""
@@ -117,7 +119,7 @@ def order(page):
                     Номер телефона: {form.mobile.data}
                     Адрес: {form.country.data} {form.region.data} {form.city.data} {form.address.data} {form.postcode.data}
                     Содержимое заказа: 
-                    """ + text)
+                    """ + text + f"""Итоговая стоимость {price} руб.""")
                 for j in pics:
                     send_photo(j)
                 return redirect(f'success{page}')
@@ -190,7 +192,9 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
 @login_required
 def selected_clothes(clothes, prev):  # Страница отвечающая за мужскую одежду
     datum = ''
+    error = ''
     data = []
+    maxi = 0
     carted_point = '🛒'
     db_session.global_init("data.db")
     db_sess = db_session.create_session()
@@ -212,6 +216,15 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
         carted = []
         carted_fin = []
         flag = False
+        for i in db_sess.query(clothes_db.Clothes).filter((clothes_db.Clothes.id == clothes)):
+            remaining = i.remaining.split(";")
+        size = form.sost.data
+        if 'UK' in size:
+            size = size.split("UK ")[-1]
+        for i in remaining:
+            i = i.split(':')
+            if i[0] == str(size):
+                remain = int(i[1])
         if current_user.carted != None:
             carted_start = (str(current_user.carted)).split(';')
             if carted_start != ['']:
@@ -220,19 +233,28 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
                     carted.append(i)
             carted_start = []
             for i in carted:
-                if i[0] == str(clothes) and i[2] == form.sost.data:
+                if i[0] == str(clothes) and i[2] == form.sost.data and (remain - int(i[1])) > 0 and int(i[1]) <= 10:
                     flag = True
                     i[1] = str(int(i[1]) + 1)
+                if i[1] == '10':
+                    maxi = 10
                 carted_start.append(i)
-        if not flag:
+        flag2 = True
+        for i in carted:
+            if str(form.sost.data) in i:
+                flag2 = False
+        if flag2 and not flag:
             carted.append([str(clothes), '1', form.sost.data])
         for i in carted:
             carted_fin.append(','.join(i))
+        print(maxi)
         carted_fin = ';'.join(carted_fin)
         for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
             i.carted = carted_fin
         db_sess.commit()
-    return render_template('selected_clothes.html', title='KABACHINO-DRIP', carted=carted_point, form=form, data=data, like=like, prev=prev)
+        if maxi == 10:
+            error = 'Максимум'
+    return render_template('selected_clothes.html', title='KABACHINO-DRIP', carted=carted_point, form=form, data=data, like=like, prev=prev, error=error)
 
 
 @app.route("/login", methods=['GET', 'POST'])
