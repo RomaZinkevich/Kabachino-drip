@@ -17,13 +17,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-class LoginForm(FlaskForm):
+class LoginForm(FlaskForm):  # форма авторизации
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
 
 
-class RegisterForm(FlaskForm):
+class RegisterForm(FlaskForm):  # форма регистрации
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', [
         validators.DataRequired(),
@@ -33,16 +33,16 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
 
-class ClothesSizesForm(FlaskForm):
+class ClothesSizesForm(FlaskForm):  # форма размеров одежды
     sost = SelectField("Размер: ", choices="XS;S;M;L;XL".split(';'))
 
 
-class ShoesSizesForm(FlaskForm):
+class ShoesSizesForm(FlaskForm):  # форма размеров обуви
     sost = SelectField(
         "Размер: ", choices="UK 6;UK 7;UK 8;UK 9;UK 10;UK 11;UK 12".split(';'))
 
 
-class OrderForm(FlaskForm):
+class OrderForm(FlaskForm):  # форма оформления заказа
     name = StringField('Имя', validators=[DataRequired()])
     surname = StringField('Фамилия', validators=[DataRequired()])
     mobile = StringField('Номер телефона', validators=[DataRequired()])
@@ -61,13 +61,13 @@ def main_page():  # Главная страница сайта
 
 @app.route("/success<page>", methods=['GET', 'POST'])
 @login_required
-def success(page):
+def success(page):  # страница показывающая успешность оформления заказа
     return render_template('success.html', title='KABACHINO-DRIP', error1='', page=page)
 
 
 @app.route("/order<page>", methods=['GET', 'POST'])
 @login_required
-def order(page):
+def order(page):  # страница оформляющая заказ клиента
     form = OrderForm()
     if request.method == "POST" and form.validate():
         db_session.global_init("data.db")
@@ -111,7 +111,7 @@ def order(page):
                         price += total_price
                         if clothes_pic not in pics:
                             pics.append(clothes_pic)
-                message(f"""
+                message(f"""         
                     Новый заказ от {i.login}:
                     Данные о заказе:
                     Имя: {form.name.data}
@@ -119,7 +119,7 @@ def order(page):
                     Номер телефона: {form.mobile.data}
                     Адрес: {form.country.data} {form.region.data} {form.city.data} {form.address.data} {form.postcode.data}
                     Содержимое заказа: 
-                    """ + text + f"""Итоговая стоимость {price} руб.""")
+                    """ + text + f"""Итоговая стоимость {price} руб.""")  # отправка сообщения о заказе автору сайта
                 for j in pics:
                     send_photo(j)
                 return redirect(f'success{page}')
@@ -190,7 +190,7 @@ def man_clothes(clothes):  # Страница отвечающая за мужс
 
 @app.route("/<int:clothes><prev>", methods=['GET', 'POST'])
 @login_required
-def selected_clothes(clothes, prev):  # Страница отвечающая за мужскую одежду
+def selected_clothes(clothes, prev):  # Страница отвечающая за выбранную одежду
     datum = ''
     error = ''
     data = []
@@ -259,7 +259,7 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
 
 
 @app.route("/login", methods=['GET', 'POST'])
-def login():
+def login():  # страница авторизации
     form = LoginForm()
     error1 = ''
     if current_user.is_authenticated:
@@ -276,7 +276,7 @@ def login():
 
 
 @app.route("/register", methods=['GET', 'POST'])
-def register():
+def register():  # страница регистрации
     form = RegisterForm()
     if request.method == "POST" and form.validate():
         db_session.global_init("data.db")
@@ -298,7 +298,7 @@ def register():
 
 @app.route("/profile", methods=['GET', 'POST'])
 @login_required
-def profile():
+def profile():  # показывает страницу пользователя
     data = []
     datum = ''
     db_session.global_init("data.db")
@@ -315,7 +315,7 @@ def profile():
 
 @app.route("/cart<int:clothes><string:size><int:flag>", methods=['GET', 'POST'])
 @login_required
-def cart(size, flag, clothes):
+def cart(size, flag, clothes):  # страница с корзиной пользователя
     data = []
     datum = ''
     db_session.global_init("data.db")
@@ -343,8 +343,7 @@ def cart(size, flag, clothes):
 
 @app.route("/upd<int:clothes><prev><int:flag>", methods=['GET', 'POST'])
 @login_required
-def upd(clothes, prev, flag):
-    print(1)
+def upd(clothes, prev, flag):  # добавляет отмеченную одежду в базу данных
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
@@ -366,7 +365,7 @@ def upd(clothes, prev, flag):
 
 @app.route("/<size>plus<int:clothes><prev>")
 @login_required
-def plus(size, clothes, prev):
+def plus(size, clothes, prev):  # увеличивает количество товара в корзине
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     carted_start = (str(current_user.carted)).split(';')
@@ -411,7 +410,7 @@ def plus(size, clothes, prev):
 
 @app.route("/<size>minus<int:clothes><prev>")
 @login_required
-def minus(size, clothes, prev):
+def minus(size, clothes, prev):  # уменьшает количество товара в корзине
     db_session.global_init('data.db')
     db_sess = db_session.create_session()
     carted_start = (str(current_user.carted)).split(';')
@@ -448,15 +447,14 @@ def minus(size, clothes, prev):
 
 @app.route("/logout")
 @login_required
-def logout():
-    """User log-out logic."""
+def logout():  # осуществляет выход пользователя из профиля
     logout_user()
     return redirect('login')
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    if user_id is not None:
+    if user_id is not None:  # определяет текущего пользователя
         db_session.global_init("data.db")
         db_sess = db_session.create_session()
         for i in db_sess.query(user.User):
@@ -467,7 +465,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    """Redirect unauthorized users to Login page."""
+    # переотправляет невошедшего пользователя на страницу логина
     return login()
 
 
