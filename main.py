@@ -107,7 +107,8 @@ def order(page):
                         text += f'''{clothes_name} в количестве {e[1]} шт. {e[2]}
                         Данной одежды осталось {remain}
                         '''
-                        pics.append(clothes_pic)
+                        if clothes_pic not in pics:
+                            pics.append(clothes_pic)
                 message(f"""
                     Новый заказ от {i.login}:
                     Данные о заказе:
