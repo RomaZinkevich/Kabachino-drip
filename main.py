@@ -8,7 +8,7 @@ import json
 import random
 from data import db_session, clothes_db, user
 from passlib.hash import sha256_crypt
-
+from bot import message, send_photo
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hgowoeqeghsdlgh'
@@ -42,9 +42,86 @@ class ShoesSizesForm(FlaskForm):
         "Размер: ", choices="UK 6;UK 7;UK 8;UK 9;UK 10;UK 11;UK 12".split(';'))
 
 
+class OrderForm(FlaskForm):
+    name = StringField('Имя', validators=[DataRequired()])
+    surname = StringField('Фамилия', validators=[DataRequired()])
+    mobile = StringField('Номер телефона', validators=[DataRequired()])
+    address = StringField('Адрес', validators=[DataRequired()])
+    city = StringField('Город', validators=[DataRequired()])
+    region = StringField('Регион', validators=[DataRequired()])
+    postcode = StringField('Почтовый индекс', validators=[DataRequired()])
+    country = StringField('Страна', validators=[DataRequired()])
+    submit = SubmitField('Заказать')
+
+
 @app.route("/")
 def main_page():  # Главная страница сайта
     return render_template('main.html', title='KABACHINO-DRIP')
+
+
+@app.route("/success<page>")
+@login_required
+def success(page):
+    return render_template('success.html', title='KABACHINO-DRIP', error1='', page=page)
+
+
+@app.route("/order<page>", methods=['GET', 'POST'])
+@login_required
+def order(page):
+    form = OrderForm()
+    if request.method == "POST" and form.validate():
+        db_session.global_init("data.db")
+        db_sess = db_session.create_session()
+        for i in db_sess.query(user.User).filter(current_user.id == user.User.id):
+            if i.carted:
+                carted_start = (str(i.carted)).split(';')
+                i.carted = ''
+                carted = []
+                for j in carted_start:
+                    j = j.split(',')
+                    carted.append(j)
+                db_sess.commit()
+                text = ''
+                pics = []
+                for e in carted:
+                    for j in db_sess.query(clothes_db.Clothes).filter(clothes_db.Clothes.id == int(e[0])):
+                        clothes_name, clothes_price, clothes_pic, clothes_remaining = j.name, j.price, j.pic, j.remaining.split(
+                            ';')
+                        remaining = []
+                        remain = ''
+                        for k in clothes_remaining:
+                            k = k.split(':')
+                            size = str(e[2])
+                            if 'UK' in str(e[2]):
+                                size = str(e[2]).split("UK ")[-1]
+                            if str(k[0]) == str(size):
+                                remain = int(k[1]) - int(e[1])
+                                remaining.append(
+                                    str(k[0]) + ":" + str(int(k[1]) - int(e[1])))
+                            else:
+                                remaining.append(':'.join(k))
+                        remaining = ';'.join(remaining)
+                        j.remaining = remaining
+                        db_sess.commit()
+                        total_price = int(e[1]) * int(clothes_price)
+                        text += f'''{clothes_name} в количестве {e[1]} шт. {e[2]}
+                        Данной одежды осталось {remain}'''
+                        pics.append(clothes_pic)
+                message(f"""
+                    Новый заказ от {i.login}:
+                    Данные о заказе:
+                    Имя: {form.name.data}
+                    Фамилия: {form.surname.data}
+                    Номер телефона: {form.mobile.data}
+                    Адрес: {form.country.data} {form.region.data} {form.city.data} {form.address.data} {form.postcode.data}
+                    Содержимое заказа: 
+                    """ + text)
+                for j in pics:
+                    send_photo(j)
+                return redirect(f'success{page}')
+            else:
+                return redirect(f'profile')
+    return render_template('order.html', title='KABACHINO-DRIP', form=form, error1='')
 
 
 @app.route("/<string:sex>")

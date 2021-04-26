@@ -3,6 +3,7 @@ import sqlalchemy
 from sqlalchemy import DateTime, Column, String, Integer, Boolean, ForeignKey
 from .db_session import SqlAlchemyBase
 from flask_login import UserMixin
+from flask_restful import reqparse, abort, Api, Resource
 
 
 class User(UserMixin, SqlAlchemyBase):
