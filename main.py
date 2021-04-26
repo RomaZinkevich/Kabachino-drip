@@ -225,35 +225,36 @@ def selected_clothes(clothes, prev):  # Страница отвечающая з
             i = i.split(':')
             if i[0] == str(size):
                 remain = int(i[1])
-        if current_user.carted != None:
-            carted_start = (str(current_user.carted)).split(';')
-            if carted_start != ['']:
-                for i in carted_start:
-                    i = i.split(',')
-                    carted.append(i)
-            carted_start = []
+        if remain != 0:
+            if current_user.carted != None:
+                carted_start = (str(current_user.carted)).split(';')
+                if carted_start != ['']:
+                    for i in carted_start:
+                        i = i.split(',')
+                        carted.append(i)
+                carted_start = []
+                for i in carted:
+                    if i[0] == str(clothes) and i[2] == form.sost.data and (remain - int(i[1])) > 0 and int(i[1]) <= 10:
+                        flag = True
+                        i[1] = str(int(i[1]) + 1)
+                    if i[1] == '10':
+                        maxi = 10
+                    carted_start.append(i)
+            flag2 = True
             for i in carted:
-                if i[0] == str(clothes) and i[2] == form.sost.data and (remain - int(i[1])) > 0 and int(i[1]) <= 10:
-                    flag = True
-                    i[1] = str(int(i[1]) + 1)
-                if i[1] == '10':
-                    maxi = 10
-                carted_start.append(i)
-        flag2 = True
-        for i in carted:
-            if str(form.sost.data) in i:
-                flag2 = False
-        if flag2 and not flag:
-            carted.append([str(clothes), '1', form.sost.data])
-        for i in carted:
-            carted_fin.append(','.join(i))
-        print(maxi)
-        carted_fin = ';'.join(carted_fin)
-        for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
-            i.carted = carted_fin
-        db_sess.commit()
-        if maxi == 10:
-            error = 'Максимум'
+                if str(form.sost.data) in i:
+                    flag2 = False
+            if flag2 and not flag:
+                carted.append([str(clothes), '1', form.sost.data])
+            for i in carted:
+                carted_fin.append(','.join(i))
+            print(maxi)
+            carted_fin = ';'.join(carted_fin)
+            for i in db_sess.query(user.User).filter(user.User.id == current_user.id):
+                i.carted = carted_fin
+            db_sess.commit()
+            if maxi == 10:
+                error = 'Максимум'
     return render_template('selected_clothes.html', title='KABACHINO-DRIP', carted=carted_point, form=form, data=data, like=like, prev=prev, error=error)
 
 
