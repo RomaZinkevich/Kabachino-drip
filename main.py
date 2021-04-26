@@ -105,7 +105,8 @@ def order(page):
                         db_sess.commit()
                         total_price = int(e[1]) * int(clothes_price)
                         text += f'''{clothes_name} в количестве {e[1]} шт. {e[2]}
-                        Данной одежды осталось {remain}'''
+                        Данной одежды осталось {remain}
+                        '''
                         pics.append(clothes_pic)
                 message(f"""
                     Новый заказ от {i.login}:
